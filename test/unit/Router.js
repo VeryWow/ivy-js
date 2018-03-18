@@ -113,34 +113,34 @@ describe('Router', function () {
             });
     });
 
-    it('resolve a route with casting', function () {
+    it('resolve a route with casting', async function () {
         router.get('/test', function () {
             return 1;
         });
 
-        router.resolveRoute({method: 'GET', url: '/test'}, response).should.equal('1');
+        (await router.resolveRoute({method: 'GET', url: '/test'}, response)).should.equal('1');
     });
 
-    it('respond with string right away', function () {
+    it('respond with string right away', async function () {
         router.get('/test/string', function () {
             return "ok";
         });
 
-        router.resolveRoute({method: 'GET', url: '/test/string'}, response).should.equal('ok');
+        (await router.resolveRoute({ method: 'GET', url: '/test/string' }, response)).should.equal('ok');
     });
 
-    it('should return Route not found if theres no route', function () {
-        router.resolveRoute({method: 'GET', url: '404'}, response).should.equal('Route not found');
+    it('should return Route not found if theres no route', async function () {
+        (await router.resolveRoute({ method: 'GET', url: '404' }, response)).should.equal('Route not found');
     });
 
-    it('parse object to string', function () {
+    it('parse object to string', async function () {
         router.get('/test/parsed', function () {
             return {
                 "test": "test"
             };
         });
 
-        router.resolveRoute({method: 'GET', url: '/test/parsed'}, response).should.equal('{\n    "test": "test"\n}');
+        (await router.resolveRoute({ method: 'GET', url: '/test/parsed' }, response)).should.equal('{\n    "test": "test"\n}');
     });
 
     it('adds string as handler', function () {
@@ -149,7 +149,7 @@ describe('Router', function () {
         router.routesList[0].should.have.property('closure').that.equals('Controller');
     });
 
-    it('returns a 500 error if json cannot be parsed to string', () => {
+    it('returns a 500 error if json cannot be parsed to string', async () => {
         sinon.stub(JSON, 'stringify').throws("Error");
 
         router.get('/test/errors', function () {
@@ -157,10 +157,16 @@ describe('Router', function () {
                 "test": "test"
             };
         });
-        router.resolveRoute({method: 'GET', url: '/test/errors'}, response).should.equal('Server error.');
+        (await router.resolveRoute({ method: 'GET', url: '/test/errors' }, response)).should.equal('Server error.');
     });
 
-    it('goes through the controller', () => {
+    it('nothing to return', () => {
+        router.get('/test/nothing', function () {
+        });
+        router.resolveRoute({method: 'GET', url: '/test/nothing'}, response);
+    });
+
+    it('goes through the controller',  async () => {
         let dispatch = sinon.stub(ControllerDispatcher, 'dispatchRoute').returns(true);
         let responder = sinon.stub(Router, 'respondToRoute').returns(true);
         let route = {
@@ -168,11 +174,36 @@ describe('Router', function () {
             params: {}
         };
 
-        Router.dispatchRoute(route, response);
+        await Router.dispatchRoute(route, response);
         dispatch.restore();
         responder.restore();
         sinon.assert.calledOnce(dispatch);
         sinon.assert.calledOnce(responder);
     });
 
+    it('creates a resource', () => {
+        router.resource('post', 'PostController');
+
+        router.routesList.should.have.property('length').that.equals(5);
+
+        router.routesList[0].should.have.property('method').that.equals('GET');
+        router.routesList[0].should.have.property('path').that.equals('post');
+        router.routesList[0].should.have.property('closure').that.equals('PostController@index');
+
+        router.routesList[1].should.have.property('method').that.equals('GET');
+        router.routesList[1].should.have.property('path').that.equals('post/:id');
+        router.routesList[1].should.have.property('closure').that.equals('PostController@show');
+
+        router.routesList[2].should.have.property('method').that.equals('POST');
+        router.routesList[2].should.have.property('path').that.equals('post');
+        router.routesList[2].should.have.property('closure').that.equals('PostController@create');
+
+        router.routesList[3].should.have.property('method').that.equals('PUT');
+        router.routesList[3].should.have.property('path').that.equals('post/:id');
+        router.routesList[3].should.have.property('closure').that.equals('PostController@update');
+
+        router.routesList[4].should.have.property('method').that.equals('DELETE');
+        router.routesList[4].should.have.property('path').that.equals('post/:id');
+        router.routesList[4].should.have.property('closure').that.equals('PostController@remove');
+    });
 });
