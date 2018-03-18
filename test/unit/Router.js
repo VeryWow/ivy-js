@@ -206,4 +206,39 @@ describe('Router', function () {
         router.routesList[4].should.have.property('path').that.equals('post/:id');
         router.routesList[4].should.have.property('closure').that.equals('PostController@remove');
     });
+
+    it('creates routes from tree', () => {
+        const routes = route => ({
+            '/api': {
+                '/tasks': {
+                    '/': [
+                        route('GET', () => 'GET/'),
+                        route('POST', () => 'POST/'),
+                        route('DELETE', () => 'DELETE/'),
+                    ],
+                    '/:id': id => ({
+                        '/': route('PUT', () => 'PUT/'),
+                        '/state': route('PUT', () => 'PUT/state'),
+                    })
+                }
+            }
+        });
+
+        router.registerRoutes(routes);
+        
+        router.routesList[0].should.have.property('path').that.equals('/api/tasks/');
+        router.routesList[0].should.have.property('method').that.equals('GET');
+
+        router.routesList[1].should.have.property('path').that.equals('/api/tasks/');
+        router.routesList[1].should.have.property('method').that.equals('POST');
+
+        router.routesList[2].should.have.property('path').that.equals('/api/tasks/');
+        router.routesList[2].should.have.property('method').that.equals('DELETE');
+
+        router.routesList[3].should.have.property('path').that.equals('/api/tasks/:id/');
+        router.routesList[3].should.have.property('method').that.equals('PUT');
+
+        router.routesList[4].should.have.property('path').that.equals('/api/tasks/:id/state');
+        router.routesList[4].should.have.property('method').that.equals('PUT');
+    })
 });

@@ -24,7 +24,7 @@ class Router {
     }
 
     /**
-     * Creates a method description and a handler
+     * (PRIVATE INTERNAL) Creates a method description and a handler
      * 
      * @param {string} method 
      * @memberof Router
@@ -35,12 +35,12 @@ class Router {
         
         this[METHOD + 'Routes'] = HttpHash();
         this[method.toLowerCase()] = (routeUrl, binding, options) => {
-            return this._registerRoute(METHOD, routeUrl, binding, options);
+            this._registerRoute(METHOD, routeUrl, binding, options);
         }
     }
 
     /**
-     * Creates a binding for a new route.
+     * (PRIVATE INTERNAL) Creates a binding for a new route.
      *
      * @param method
      * @param routeUrl
@@ -77,9 +77,53 @@ class Router {
      * @memberof Router
      */
     registerRoutes(routes) {
-        Array.isArray(routes) && routes.forEach(route =>
-            this._registerRoute(route.method, route.routeUrl, route.binding, route.options)
-        );
+        if (Array.isArray(routes)) {
+            routes.forEach(route =>
+                this._registerRoute(route.method, route.routeUrl, route.binding, route.options)
+            );
+        }
+        else if (typeof routes === 'function') {
+            const defineHandler = (route, url) => {
+                const method = route[0];
+                const binding = route[1];
+                const options = route.length > 2 ? route[2] : undefined;
+                this._registerRoute(method, url, binding, options);
+            }
+
+            const defineHandlers = (_routes, path = '') => {
+                for (let _url in _routes) {
+                    const route = _routes[_url];
+                    let url = (_url[0] !== '/') ? ('/' + _url) : _url;
+
+                    if (typeof route === 'function') {
+                        const params = url.match(/\:\w+/gm).map(el => el.replace(/\:/, ''));
+                        const result = route.apply(void 0, params);
+                        defineRoute(result, path + url)
+                    } else {
+                        defineRoute(route, path + url);
+                    }
+                }
+            }
+            
+            function defineRoute(route, url) {
+                if (Array.isArray(route)) {
+                    if (route.length === 0)
+                        throw new Error(`No handlers provided for '${url}'!`);
+
+                    if (Array.isArray(route[0]) && route[0].length > 1) {
+                        route.forEach(handler => defineHandler(handler, url));
+                    } else if (route[0].length <= 1) {
+                        throw new Error(`Route handler of '${url}' is not defined!`);
+                    } else {
+                        defineHandler(route, url);
+                    }
+                } else {
+                    defineHandlers(route, url);
+                }
+            }
+
+            defineHandlers(routes((method, binding, options) => [method, binding, options]));
+        }
     }
 
     /**

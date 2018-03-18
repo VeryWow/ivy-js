@@ -3,6 +3,7 @@
   "version": "0.5.3",
   "description": "Ivy framework for NodeJS",
   "main": "index.js",
+  "types": "types/index.d.ts",
   "keywords": [
     "ivyjs",
     "framework",
