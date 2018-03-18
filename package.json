@@ -1,5 +1,5 @@
 {
-  "name": "ivyframework",
+  "name": "ivy-js",
   "version": "0.5.3",
   "description": "Ivy framework for NodeJS",
   "main": "index.js",
