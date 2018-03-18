@@ -179,7 +179,7 @@ class Router {
         let handler = route.handler.closure;
         try {
             let handlerResponse = typeof handler === 'string'
-                ? await ControllerDispatcher.dispatchRoute(handler, route.params, route.query)
+                ? await ControllerDispatcher.dispatchRoute(handler, [route.params, route.query])
                 : await handler(route.params, route.query);
             return Router.respondToRoute(handlerResponse, response);
         } catch (e) {
