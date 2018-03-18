@@ -1,5 +1,6 @@
 let HttpHash = require('http-hash'),
     ControllerDispatcher = require('./ControllerDispatcher');
+    urlParser = require('url');
 
 const defaultMethods = [
     'GET',
@@ -92,6 +93,9 @@ class Router {
 
         if (route.handler) {
             try {
+                if (request.method === 'GET') {
+                    route.query = urlParser.parse(request.url, true).query || {}
+                }
                 return await Router.goThroughMiddleware(route, request, response);
             } catch (e) {
                 throw new Error(e);
@@ -112,6 +116,7 @@ class Router {
      * @param route
      */
     findMatchingRoute(method, route) {
+        route = route.split('?')[0]
         return this[method + 'Routes'].get(route);
     }
 
@@ -173,7 +178,9 @@ class Router {
     static async dispatchRoute(route, response) {
         let handler = route.handler.closure;
         try {
-            let handlerResponse = typeof handler === 'string' ? await ControllerDispatcher.dispatchRoute(handler, route.params) : await handler(route.params);
+            let handlerResponse = typeof handler === 'string'
+                ? await ControllerDispatcher.dispatchRoute(handler, route.params, route.query)
+                : await handler(route.params, route.query);
             return Router.respondToRoute(handlerResponse, response);
         } catch (e) {
             throw new Error(e);
