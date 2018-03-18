@@ -12,7 +12,7 @@ describe('Config', () => {
     });
 
     it('loads .env config from path', () => {
-        config.loadEnvFromPath(process.env.PWD + '/test/unit/configs/.env');
+        config.loadEnvFromPath(process.cwd() + '/test/unit/configs/.env');
         process.env.should.have.property('NAME').that.equal('good');
     });
 

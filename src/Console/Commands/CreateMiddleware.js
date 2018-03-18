@@ -13,7 +13,7 @@ Commander.register('make:middleware')
         let generator = new MiddlewareScaffold();
 
         generator.scaffoldMiddleware(command.parameters[0]);
-        generator.generateFile(path.join(process.env.PWD, 'app', 'middleware', command.parameters[0] + '.js'));
+        generator.generateFile(path.join(process.cwd(), 'app', 'middleware', command.parameters[0] + '.js'));
         return `Middleware ${command.parameters[0]} created.`.green;
     });
 

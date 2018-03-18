@@ -21,7 +21,7 @@ class Helper {
      */
     static requireFromFolder(folderPath) {
         const path = require('path');
-        folderPath = path.join(process.env.PWD, folderPath);
+        folderPath = path.join(process.cwd(), folderPath);
         require("fs").readdirSync(folderPath).forEach(function(file) {
             require(path.join(folderPath, file));
         });

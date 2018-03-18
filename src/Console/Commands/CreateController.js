@@ -15,7 +15,7 @@ Commander.register('make:controller')
 
         let generator = new ControllerScaffold(command.parameters[0], command.resource);
 
-        generator.generateClass(path.join(process.env.PWD, 'app', 'controller', command.parameters[0] + '.js'));
+        generator.generateClass(path.join(process.cwd(), 'app', 'controller', command.parameters[0] + '.js'));
         return `Controller ${command.parameters[0]} created.`.green;
     });
 
