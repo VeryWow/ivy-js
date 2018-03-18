@@ -8,6 +8,7 @@ chai.should();
 
 
 describe('RequestHandling', () => {
+    var _PORT_;
     before(() => {
         let server = require('../../');
 
@@ -16,9 +17,12 @@ describe('RequestHandling', () => {
         });
 
         let config = use('Ivy/Config');
-        config.loadConfig('app', {'port': 3000});
+        _PORT_ = 3000;
+        config.loadConfig('app', { port: _PORT_ });
 
-        (new server).start();
+        (new server).start(newPort => {
+            _PORT_ = newPort;
+        });
     });
 
     it('gets the response from server for no param route', (done) => {
@@ -26,7 +30,7 @@ describe('RequestHandling', () => {
             return 'ok';
         });
 
-        chai.request('http://localhost:3000')
+        chai.request('http://localhost:' + _PORT_)
             .get('/')
             .end((err, res) => {
                 res.should.have.property('text').that.equal('ok');
@@ -43,10 +47,23 @@ describe('RequestHandling', () => {
             })
         });
 
-        chai.request('http://localhost:3000')
+        chai.request('http://localhost:' + _PORT_)
             .get('/async')
             .end((err, res) => {
                 res.should.have.property('text').that.equal('ok');
+                done();
+            });
+    });
+
+    it('gets the query params from route', (done) => {
+        use('Ivy/Router').get('/query-test', function (params, query) {
+            return query.q
+        });
+
+        chai.request('http://localhost:' + _PORT_)
+            .get('/query-test?q=fastText')
+            .end((err, res) => {
+                res.should.have.property('text').that.equal('fastText');
                 done();
             });
     });
@@ -65,7 +82,7 @@ describe('RequestHandling', () => {
             return params.id;
         }, { middleware: 'test' });
 
-        chai.request('http://localhost:3000')
+        chai.request('http://localhost:' + _PORT_)
             .get('/20')
             .end((err, res) => {
                 res.should.have.property('text').that.equal('33');
@@ -86,7 +103,7 @@ describe('RequestHandling', () => {
             return params.id;
         }, { middleware: 'test1' });
 
-        chai.request('http://localhost:3000')
+        chai.request('http://localhost:' + _PORT_)
             .get('/error')
             .end((err, res) => {
                 res.should.have.property('text').that.equals('Error piping through middleware. Cant go through!');
