@@ -1,13 +1,41 @@
 let HttpHash = require('http-hash'),
     ControllerDispatcher = require('./ControllerDispatcher');
 
+const defaultMethods = [
+    'GET',
+    'POST',
+    'PUT',
+    'DELETE'
+]
+
 class Router {
-    constructor() {
-        this.GETRoutes = HttpHash();
-        this.POSTRoutes = HttpHash();
-        this.PUTRoutes = HttpHash();
-        this.DELETERoutes = HttpHash();
+
+    /**
+     * Creates an instance of Router.
+     * @param {string[]} [methods=[]] 
+     * @memberof Router
+     */
+    constructor(methods = []) {
+        this.methods = defaultMethods.concat(methods.filter(el => !~defaultMethods.indexOf(el)));
+
+        this.methods.forEach(method => this._addMethod.call(this, method))
         this.routesList = [];
+    }
+
+    /**
+     * Creates a method description and a handler
+     * 
+     * @param {string} method 
+     * @memberof Router
+     */
+    _addMethod(method) {
+        const METHOD = method.toUpperCase();
+        method = method.toLowerCase();
+        
+        this[METHOD + 'Routes'] = HttpHash();
+        this[method.toLowerCase()] = (routeUrl, binding, options) => {
+            return this._registerRoute(METHOD, routeUrl, binding, options);
+        }
     }
 
     /**
@@ -19,61 +47,38 @@ class Router {
      * @param options
      */
     _registerRoute(method, routeUrl, binding, options) {
-        this[method + 'Routes'].set(routeUrl, {closure: binding, options: options});
+        this[method + 'Routes'].set(routeUrl, { closure: binding, options });
         this.routesList.push({
-            method: method,
+            method,
+            options,
             path: routeUrl,
-            options: options,
             closure: typeof binding === 'function' ? 'Function' : binding
         });
     }
 
     /**
-     * Creates a get route.
-     *
-     * @param routeUrl
-     * @param binding
-     * @param options
-     * @return {*}
+     * Adds new method to the instance
+     * 
+     * @param {string} method 
+     * @memberof Router
      */
-    get(routeUrl, binding, options) {
-        return this._registerRoute('GET', routeUrl, binding, options);
+    addMethod(method) {
+        if (!~this.methods.indexOf(method.toUpperCase())) {
+            this.methods.push(method.toUpperCase())
+            this._addMethod(method)
+        }
     }
 
     /**
-     * Creates a post route.
-     *
-     * @param routeUrl
-     * @param binding
-     * @param options
-     * @return {*}
+     * Registers a bunch of routes
+     * 
+     * @param {{method: string, routeUrl: string, binding, options}} routes
+     * @memberof Router
      */
-    post(routeUrl, binding, options) {
-        return this._registerRoute('POST', routeUrl, binding, options);
-    }
-
-    /**
-     * Creates a put route.
-     *
-     * @param routeUrl
-     * @param binding
-     * @param options
-     * @return {*}
-     */
-    put(routeUrl, binding, options) {
-        return this._registerRoute('PUT', routeUrl, binding, options);
-    }
-
-    /**
-     * Creates a delete route.
-     *
-     * @param routeUrl
-     * @param binding
-     * @param options
-     * @return {*}
-     */
-    delete(routeUrl, binding, options) {
-        return this._registerRoute('DELETE', routeUrl, binding, options);
+    registerRoutes(routes) {
+        Array.isArray(routes) && routes.forEach(route =>
+            this._registerRoute(route.method, route.routeUrl, route.binding, route.options)
+        );
     }
 
     /**
