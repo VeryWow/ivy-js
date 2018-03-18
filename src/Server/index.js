@@ -11,17 +11,16 @@ class Server {
      * @param {number} [fromPort=3000] the port to start searching open ports from
      */
     getPort(fromPort = 3000) {
-        return new Promise((resolve, reject) => {
-            var port = fromPort;
-            fromPort += 1;
+        fromPort = Number(fromPort);
+        var port = fromPort;
 
-            var server = http.createServer()
-            server.listen(port, (err) => {
-                server.once('close', () => {
+        return new Promise((resolve, reject) => {
+            http.createServer().listen(port, function () {
+                this.close(() => {
                     resolve(port);
-                }).close();
+                });
             }).on('error', (err) => {
-                this.getPort(fromPort);
+                resolve(this.getPort(++fromPort));
             })
         })
     }
@@ -44,10 +43,10 @@ class Server {
             console.error(e)
             openedPort = 0
         } finally {
-            const server = http.createServer((request, response) => this.router.resolveRoute(request, response));
-
-            server.listen(openedPort, configHost, () => {
-                cb(server.address().port, configHost);
+            http.createServer(
+                (request, response) => this.router.resolveRoute(request, response)
+            ).listen(openedPort, configHost, function () {
+                cb(this.address().port, configHost);
             });
         }
     }
