@@ -31,7 +31,7 @@ class Server {
      * @param {(port: number, host: string) => void} cb called after server creation
      * @memberof Server
      */
-    async start(cb) {
+    async start(cb = () => {}) {
         const createConfig = (type, def) => use('Ivy/Config').get(`app.${type}`) || def;
 
         let configHost = createConfig('host', '');
