@@ -92,8 +92,8 @@ class Router {
 
             const defineHandlers = (_routes, path = '') => {
                 for (let _url in _routes) {
-                    const route = _routes[_url];
-                    let url = (_url[0] !== '/') ? ('/' + _url) : _url;
+                    let route = _routes[_url];
+                    let url = ('/' + _url).replace(/\/+/g, '/');
 
                     if (typeof route === 'function') {
                         const params = url.match(/\:\w+/gm).map(el => el.replace(/\:/, ''));
