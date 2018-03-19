@@ -71,7 +71,7 @@ class Router {
     }
 
     /**
-     * Registers a bunch of routes
+     * Registers a bunch of routes in two ways: array or a tree
      * 
      * @param {{method: string, routeUrl: string, binding, options}} routes
      * @memberof Router
@@ -95,13 +95,7 @@ class Router {
                     let route = _routes[_url];
                     let url = ('/' + _url).replace(/\/+/g, '/');
 
-                    if (typeof route === 'function') {
-                        const params = url.match(/\:\w+/gm).map(el => el.replace(/\:/, ''));
-                        const result = route.apply(void 0, params);
-                        defineRoute(result, path + url)
-                    } else {
-                        defineRoute(route, path + url);
-                    }
+                    defineRoute(route, path + url);
                 }
             }
             
