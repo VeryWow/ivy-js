@@ -216,10 +216,10 @@ describe('Router', function () {
                         route('POST', () => 'POST/'),
                         route('DELETE', () => 'DELETE/'),
                     ],
-                    '/:id': id => ({
+                    '/:id': {
                         '/': route('PUT', () => 'PUT/'),
                         '/state': route('PUT', () => 'PUT/state'),
-                    })
+                    }
                 }
             }
         });
