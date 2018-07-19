@@ -25,6 +25,23 @@ describe('RequestHandling', () => {
         });
     });
 
+    it('adds custom headers', (done) => {
+        use('Ivy/Router').get('/headers-test', function () {
+            return (response) => {
+                response.setHeader('my-header', 'asdqwe');
+                response.end('ok');
+            };
+        });
+
+        chai.request('http://localhost:' + _PORT_)
+            .get('/headers-test')
+            .end((err, res) => {
+                res.headers.should.have.property('my-header').that.equal('asdqwe');
+                res.should.have.property('text').that.equal('ok');
+                done();
+            });
+    });
+
     it('gets the response from server for no param route', (done) => {
         use('Ivy/Router').get('/', function () {
             return 'ok';

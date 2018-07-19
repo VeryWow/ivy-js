@@ -232,12 +232,16 @@ class Router {
      * @param response
      * @return {*}
      */
-    static respondToRoute(handlerAnswer, response) {
+    static async respondToRoute(handlerAnswer, response) {
         if (!handlerAnswer)
             return response.end();
 
         if (typeof handlerAnswer === "string")
             return response.end(handlerAnswer);
+
+        // Letting users describe their own logic with response
+        if (typeof handlerAnswer === "function")
+            return await handlerAnswer(response);
 
         if (handlerAnswer['toString'] && typeof handlerAnswer !== 'object')
             return response.end(handlerAnswer.toString());
