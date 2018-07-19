@@ -240,8 +240,15 @@ class Router {
             return response.end(handlerAnswer);
 
         // Letting users describe their own logic with response
-        if (typeof handlerAnswer === "function")
-            return await handlerAnswer(response);
+        if (typeof handlerAnswer === "function") {
+            try {
+                return await handlerAnswer(response);
+            } catch (e) {
+                console.error('Error while trying to handle the answer from controller. ' + e);
+                response.writeHead(500);
+                return response.end('Server error.');
+            }
+        }
 
         if (handlerAnswer['toString'] && typeof handlerAnswer !== 'object')
             return response.end(handlerAnswer.toString());
