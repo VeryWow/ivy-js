@@ -1,6 +1,6 @@
 {
   "name": "ivy-js",
-  "version": "0.5.3",
+  "version": "1.0.0",
   "description": "Ivy framework for NodeJS",
   "main": "index.js",
   "types": "types/index.d.ts",
@@ -13,9 +13,9 @@
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/ivyjs/framework.git"
+    "url": "https://github.com/VeryWow/ivy-js.git"
   },
-  "author": "Aleksa Stankovic <lexa931@hotmail.com>",
+  "author": "Aleksa Stankovic <lexa931@hotmail.com>, kaskar2008 <dev.kaskar2008@gmail.com>, Raiondesu",
   "license": "MIT",
   "devDependencies": {
     "chai": "^3.5.0",
