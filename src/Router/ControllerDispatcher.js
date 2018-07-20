@@ -12,7 +12,7 @@ class ControllerDispatcher {
         try {
             return await app().call(controller, methodName, parameters);
         } catch (e) {
-            throw new Error(e);
+            throw e;
         }
     }
 

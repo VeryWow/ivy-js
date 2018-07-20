@@ -136,7 +136,6 @@ class Router {
                 }
                 return await Router.goThroughMiddleware(route, request, response);
             } catch (e) {
-                throw new Error(e);
                 console.error('Error while trying to resolve route. ' + e);
                 response.writeHead(500);
                 return response.end('Server error.');
@@ -171,7 +170,7 @@ class Router {
             try {
                 return await Router.dispatchRoute(route, response);
             } catch (e) {
-                throw new Error(e);
+                throw e;
             }
         }
 
@@ -190,7 +189,7 @@ class Router {
                 try {
                     return await Router.dispatchRoute(data.route, data.response);
                 } catch (e) {
-                    throw new Error(e);
+                    throw e;
                 }
             });
 
@@ -221,7 +220,7 @@ class Router {
                 : await handler(route.params, route.query);
             return Router.respondToRoute(handlerResponse, response);
         } catch (e) {
-            throw new Error(e);
+            throw e;
         }
     }
 

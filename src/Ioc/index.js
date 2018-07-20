@@ -140,7 +140,7 @@ class Ioc {
         try {
             return await binding[functionName].apply(binding, parameters);
         } catch (e) {
-            throw new Error(e);
+            throw e;
         }
     }
 
