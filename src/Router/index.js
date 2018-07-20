@@ -189,7 +189,9 @@ class Router {
                 try {
                     return await Router.dispatchRoute(data.route, data.response);
                 } catch (e) {
-                    throw e;
+                    console.error(e);
+                    response.writeHead(500);
+                    response.end('Error dispatching the route. ' + e);
                 }
             });
 
